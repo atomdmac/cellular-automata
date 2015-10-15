@@ -1,5 +1,11 @@
 function Main () {
-	var map = new Map(50, 50, 10, document.getElementById('stage'));
+	var map = new Map(50, 50, 5, document.getElementById('stage'));
 	map.randomize();
-	map.render();
+
+	var conway = new Conway(map);
+
+	setInterval(function () {
+		conway.iterate();
+		map.render();
+	}, 500);
 }

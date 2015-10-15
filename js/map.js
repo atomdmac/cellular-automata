@@ -16,7 +16,6 @@ function Map (width, height, cellSize, canvas) {
 
 	// Save canvas reference.
 	this.canvas = canvas;
-	console.log(canvas);
 	this.context = canvas.getContext('2d');
 }
 
@@ -28,9 +27,38 @@ Map.prototype.randomize = function () {
 	}
 };
 
+// Return a clone of this map.
+Map.prototype.clone = function () {
+	var map = new Map(this.width, this.height, this.cellSize, this.canvas)
+	map.duplicate(this);
+	return map;
+};
+
+// Duplicate the settings/data from another map and apply it to this map.
+Map.prototype.duplicate = function (map) {
+	this.width = map.width;
+	this.height = map.height;
+	this.cellSize = map.cellSize;
+	this.canvas = map.canvas;
+	this.context = map.canvas.getContext('2d');
+	this.data = [];
+
+	for(var x=0; x<map.width; x++) {
+		this.data[x] = [];
+		for(var y=0; y<map.height; y++) {
+			this.data[x][y] = map.data[x][y];
+		}
+	}
+};
+
 Map.prototype.render = function () {
 	// Clear existing graphics
-	this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+	// this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+	this.context.fillStyle = '#fff';
+	this.context.globalAlpha = 0.9;
+	this.context.beginPath();
+	this.context.rect(0, 0, this.canvas.width, this.canvas.height);
+	this.context.fill();
 
 	// Draw each cell.
 	for(var x=0; x<this.width; x++) {
@@ -59,6 +87,29 @@ Map.prototype.getCell = function (x, y) {
 	if(x >= 0 && x < this.width - 1 && y >= 0 && y < this.height - 1) {
 		return this.data[x][y];
 	} else {
-		throw "Cell coordinates are out of bounds, y'dummy.";
+		return false;
 	}
+};
+
+Map.prototype.getSurroundingWallCount = function (x, y) {
+	var count = 0;
+
+	// N
+	if(this.getCell(x, y-1) === 1) count++;
+	// NE
+	if(this.getCell(x+1, y-1 === 1)) count++;
+	// E
+	if(this.getCell(x+1, y) === 1) count++;
+	// SE
+	if(this.getCell(x+1, y+1 === 1)) count++;
+	// S
+	if(this.getCell(x, y+1) === 1) count++;
+	// SW
+	if(this.getCell(x-1, y+1 === 1)) count++;
+	// W
+	if(this.getCell(x-1, y) === 1) count++;
+	// NW
+	if(this.getCell(x-1, -1) === 1) count++;
+
+	return count;
 };
